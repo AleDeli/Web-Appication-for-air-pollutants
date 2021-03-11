@@ -1,7 +1,7 @@
 
 library(shiny)
 library(shinythemes) #temi per shiny da bootstrap
-library(shinycssloaders) #immagini per caricamenti
+library(shinycssloaders) #loader per caricamenti
 library(shinyWidgets)
 library(shinymaterial)
 
@@ -16,7 +16,7 @@ thematic_on(bg = "#2B3E50", fg = "white", accent = "#0CE3AC")
 
 options(spinner.color="#df691a", spinner.color.background="#ffffff", spinner.size=1)
 
-
+#-----------------------------------------Sezione previsione --------------------------------------
 principal_ui<- sidebarLayout(
     #risultati previsione
     sidebarPanel( id = "card2",
@@ -79,23 +79,20 @@ principal_ui<- sidebarLayout(
                   id = "row")
     ),
     
-    # Grafico previsione
     mainPanel(id = "card2",
       withSpinner(plotlyOutput("distPlot"), type =4)
     )
 )
-
+#-----------------------------------------elementi sezione cerca e mappa --------------------------------------
 map_ui <- leafletOutput("map")
-
 
 to_ui <- dateRangeInput("to", h3("Periodo"), format = "mm/dd/yy", separator = "a", start= Sys.Date()-10, end = Sys.Date() +1,)
 
-
 type_of_station <- uiOutput("type_of_station")
-
 
 search_ui2 <-uiOutput("station")
 
+#-----------------------------------------Sezione Trend --------------------------------------
 trend_plot_ui <-  sidebarLayout(
   
   sidebarPanel( id = "card2",
@@ -136,11 +133,9 @@ trend_plot_ui <-  sidebarLayout(
     br(),
   ),
   
-  # Show a plot of the generated distribution
   mainPanel(id = "card2",
     withSpinner(plotlyOutput("trendPlot"), type =4)
   ),
-  #position = c("left", "right"),
   fluid = FALSE
   
   

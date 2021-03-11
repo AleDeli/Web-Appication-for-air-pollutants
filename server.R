@@ -8,12 +8,8 @@ library("RSocrata") #read data from site
 library(lubridate)
 
 #librerie mappa
-#library("tidyverse")
 library("leaflet")
 library(dplyr)
-#library(maps)
-#library(maptools)
-
 
 
 library(forecast)
@@ -237,17 +233,12 @@ shinyServer(function(input, output, session) {
           )
 
       ts <- xts(sdf$valore, start = min(as.Date(sdf$data)), end = max(as.Date(sdf$data)), order.by=as.Date(sdf$data) )#, colnames = "valore", frequency = "") 
-      
       day_mean <- apply.daily(ts, mean)
       fcast <- forecast(day_mean, h=3)
-      
-      #Date <- sdf$data <- format(as.Date(sdf$data), "%d/%m") #add giorni previsione 
       Date <- format(index(day_mean), "%d/%m")
-      
       p <- autoplot(fcast, colums=, colour=" darkorange2", size = 2,) 
       p <- p + scale_x_continuous(labels=Date,breaks = seq(1, length(Date))) + xlab("Data") + ylab(paste0("\u00b5","\u0067","\u002f","\u006d","\u00b3"))#works
       ggplotly(p)
-      
       
     })
      
@@ -285,16 +276,8 @@ shinyServer(function(input, output, session) {
     #-------------------------------------------------- mappa -------------------------------------------------
     output$map <- renderLeaflet({
       
-      #ita.map <- map( 'italy', fill = TRUE, col = 1, plot = F );
-     # ita.map.ids <- sapply( strsplit( ita.map$names, ':' ), function(x) x[1] );
-     # ita.sp <- map2SpatialPolygons( ita.map, IDs=ita.map.ids, proj4string=CRS("+proj=longlat +datum=WGS84"))
-      
-      
         map <- leaflet() %>% 
-           # addProviderTiles(providers$Stamen.TonerLite) %>%
             addProviderTiles(providers$OpenStreetMap.HOT) %>%
-            #addPolygons(data=ita.sp)%>%
-            #addExtent(data=ita.sp)%>%
             addMarkers(
                 lng =stazioniaux$lng, lat = stazioniaux$lat, layerId = stazioniaux$idsensore, group = stazioniaux$nometiposensore,
                 clusterOptions = markerClusterOptions(), label = stazioniaux$nomestazione,
