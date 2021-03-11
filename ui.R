@@ -141,22 +141,7 @@ trend_plot_ui <-  sidebarLayout(
   
 )
 
-
-map_and_choises <- sidebarLayout(
-  
-  sidebarPanel(
-    search_ui2,
-    type_of_station,
-    to_ui
-  ),
-  
-  mainPanel(
-    map_ui
-  )
-  
-)
-
-map_and_choises2 <- fluidRow( id = "mapRow",
+map_and_choises <- fluidRow( id = "mapRow",
   tags$style(type = "text/css", "#map {height: calc(70vh - 80px) !important;}"),
   leafletOutput("map"),
   absolutePanel(id = "controls", class = "panel panel-default", draggable = TRUE, top = 250, left = 50, width = 400, height = 400,
@@ -253,7 +238,7 @@ shinyUI(fluidPage(
                           p("presenti nella regione Lombadia", align = "center")
                         ),
                         br(),
-                        map_and_choises2, 
+                        map_and_choises, 
                         br(),
                         br(),
                         br(),

@@ -165,7 +165,6 @@ shinyServer(function(input, output, session) {
        format(x, "%d/%m")
      })
      
-     ###DA CONTROLLARE
      output$forecast1<- renderText({
        fcast <- forecastdata()
        round(fcast$mean[1],1)
