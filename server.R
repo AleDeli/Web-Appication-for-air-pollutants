@@ -5,6 +5,7 @@ library(ggplot2)
 library(plotly)
 library(shinyjs)
 library("RSocrata") #read data from site
+library(lubridate)
 
 #librerie mappa
 #library("tidyverse")
@@ -49,17 +50,10 @@ shinyServer(function(input, output, session) {
     link <- "https://www.dati.lombardia.it/resource/nicp-bhqi.csv?idsensore="
     x<-paste0(link,y)
     unsensore <- read.socrata(x)
-    #names(unsensore)[names(unsensore) == "data"] <- "date"
-    
     valori<- unsensore[unsensore$valore != -9999,]$valore
     mean(valori)
-    
     unsensore$valore[unsensore$valore<0] <- mean(valori)
-    
-    #df0<-replace(unsensore$valore, unsensore$valore<0,mean(valori)) 
-    
     df<-tbl_df(unsensore)
-    
     ss <- subset(df,  as.Date(data) > as.Date(input$to[1]) & as.Date(data)< as.Date(input$to[2]))
     
     ss
@@ -70,20 +64,19 @@ shinyServer(function(input, output, session) {
     link <- "https://www.dati.lombardia.it/resource/nicp-bhqi.csv?idsensore="
     x<-paste0(link,y)
     unsensore <- read.socrata(x)
-    #names(unsensore)[names(unsensore) == "data"] <- "date"
     valori<- unsensore[unsensore$valore != -9999,]$valore
     mean(valori)
-    
     unsensore$valore[unsensore$valore<0] <- mean(valori)
-    
-   # df<-tbl_df(unsensore)
-    
-    #df
-    unsensore
-    
-   # ss <- subset(df,  as.Date(data) > as.Date(input$to[1]) & as.Date(data)< as.Date(input$to[2]))
-    
-    #ss
+    ss <- subset(unsensore,  as.Date(data) > Sys.Date()-30)
+    ss
+  })
+  
+  forecastdata<- reactive({
+    sdf <- mydata()
+    ts <- xts(sdf$valore, start = min(as.Date(sdf$data)), end = max(as.Date(sdf$data)), order.by=as.Date(sdf$data) )#, colnames = "valore", frequency = "") 
+    day_mean <- apply.daily(ts, mean)
+    fcast <- forecast(day_mean, h=3)
+    fcast
   })
   
   #-------------------------------------------------- observer -------------------------------------------------
@@ -92,11 +85,6 @@ shinyServer(function(input, output, session) {
     data$clickedMarker <- input$map_marker_click
     print(data$clickedMarker)
     })
-  
-  observeEvent(input$type,{   ###errore
-    data$clickedMarker <- NULL
-  })
-  
   
   
   observeEvent(c(input$type,input$map_marker_click),{
@@ -108,13 +96,14 @@ shinyServer(function(input, output, session) {
     }
     else{
       
-      type <- Stazioni[Stazioni$idsensore == data$clickedMarker$id,]$nometiposensore
-      updateSelectInput(session, "type", choices =  tiposensore, selected = type )
-      
-      y <- Stazioni[Stazioni$idsensore== data$clickedMarker $id,]$nometiposensore
+      y <- Stazioni[Stazioni$idsensore== data$clickedMarker$id,]$nometiposensore
       StazioniSel <- Stazioni[Stazioni$nometiposensore == y,]
       x <- StazioniSel$nomestazione
       updateSelectInput(session, "search2", choices = x, selected = Stazioni[Stazioni$idsensore == data$clickedMarker$id,]$nomestazione)
+      
+      
+      type <- Stazioni[Stazioni$idsensore == data$clickedMarker$id,]$nometiposensore
+      updateSelectInput(session, "type", selected = type )
       
     }
     data$clickedMarker <- NULL ###try
@@ -125,25 +114,32 @@ shinyServer(function(input, output, session) {
  
     #-------------------------------------------------- varie -------------------------------------------------
     output$max <- renderText({
-        tabella <- mydata()
+        tabella <- mydatatrend()
         x<- max(tabella$valore)
         #paste("valore massimo:",x)
-        x
+        round(x,1)
        
     })
   
+     output$dativari1 <- renderText({
+       tabella <- mydata()
+       y<- unique(tabella$idsensore) 
+       x <- Stazioni[Stazioni$idsensore== y,]$nomestazione
+       x
+     })
+     
      output$dativari2 <- renderText({
        tabella <- mydata()
-       y<- unique(tabella$idsensore)
-       paste("  Id stazione:", y)
-       #y
+       y<- unique(tabella$idsensore) 
+       x <- Stazioni[Stazioni$idsensore== y,]$nometiposensore
+       x
      })
     
      output$min <- renderText({
-       tabella <- mydata()
+       tabella <- mydatatrend()
        x<- min(tabella$valore)
        #paste("valore minimo:",x)
-       x
+       round(x,1)
      })
      
      output$std_error <- renderText({
@@ -151,29 +147,84 @@ shinyServer(function(input, output, session) {
      })
      
      output$mean <- renderText({
-       tabella <- mydata()
+       tabella <- mydatatrend()
        x<- mean(tabella$valore)
        #paste("media:",x)
-       x
+       round(x,1)
+     })
+     
+     output$date1 <- renderText({
+       tabella <- mydata()
+       x <- max(tabella$data) #+ days(0)
+       format(x, "%d/%m")
+     })
+     output$date2 <- renderText({
+       tabella <- mydata()
+       x <- max(tabella$data) + days(1)
+       format(x, "%d/%m")
+     })
+     output$date3 <- renderText({
+       tabella <- mydata()
+       x <- max(tabella$data) + days(2)
+       format(x, "%d/%m")
      })
      
      ###DA CONTROLLARE
      output$forecast1<- renderText({
-       
-       sdf <- mydata()
-       
-       validate(
-         need(nrow(sdf)!= 0, "Dati non presenti per l'intervallo di tempo selezionato")
-         
-       )
-       
-       ts <- xts(sdf$valore, start = min(as.Date(sdf$data)), end = max(as.Date(sdf$data)), order.by=as.Date(sdf$data) )#, colnames = "valore", frequency = "") 
-       
-       fcast <- forecast(ts, h=3)
-       fcast$mean[1]
-       
+       fcast <- forecastdata()
+       round(fcast$mean[1],1)
      })
      
+     output$forecast2<- renderText({
+       fcast <- forecastdata()
+       round(fcast$mean[2],1)
+     })
+     
+     output$forecast3<- renderText({
+       fcast <- forecastdata()
+       round(fcast$mean[3],1)
+     })
+     
+     
+     output$upper1<- renderText({
+       fcast <- forecastdata()
+       paste0("Max:", "\u0020", round(fcast$upper[1,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
+     })
+     
+     output$upper2<- renderText({
+       fcast <- forecastdata()
+       paste0("Max:","\u0020", round(fcast$upper[2,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
+     })
+     
+     output$upper3<- renderText({
+       fcast <- forecastdata()
+       paste0("Max:", "\u0020", round(fcast$upper[3,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
+     })
+     
+     output$lower1<- renderText({
+       fcast <- forecastdata()
+       paste0("Min:","\u0020", round(fcast$lower[1,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
+     })
+     
+     output$lower2<- renderText({
+       fcast <- forecastdata()
+       paste0("Min:","\u0020", round(fcast$lower[2,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
+     })
+     
+     output$lower3<- renderText({
+       fcast <- forecastdata()
+       paste0("Min:", "\u0020", round(fcast$lower[3,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
+     })
+     
+     output$rmse <- renderText({
+       fcast <- forecastdata()
+       paste0("RMSE:", "\u0020", round(accuracy(fcast)[2],3))
+     })
+     
+     output$mae <- renderText({
+       fcast <- forecastdata()
+       paste0("MAE:", "\u0020", round(accuracy(fcast)[3],3))
+     })
      
     #-------------------------------------------------- plot -------------------------------------------------
     output$distPlot <- renderPlotly({ #plotly per interactive but no theme
@@ -186,14 +237,15 @@ shinyServer(function(input, output, session) {
           )
 
       ts <- xts(sdf$valore, start = min(as.Date(sdf$data)), end = max(as.Date(sdf$data)), order.by=as.Date(sdf$data) )#, colnames = "valore", frequency = "") 
-      print(ts)
-      #ts<- xts( sdf= sdf[, "valore"], order.by = as.Date(sdf$data))
-      fcast <- forecast(ts, h=3)
       
-      Date <- sdf$data <- format(as.Date(sdf$data), "%d/%m") #add giorni previsione 
+      day_mean <- apply.daily(ts, mean)
+      fcast <- forecast(day_mean, h=3)
+      
+      #Date <- sdf$data <- format(as.Date(sdf$data), "%d/%m") #add giorni previsione 
+      Date <- format(index(day_mean), "%d/%m")
       
       p <- autoplot(fcast, colums=, colour=" darkorange2", size = 2,) 
-      p <- p + scale_x_continuous(labels=Date,breaks = seq(1, length(sdf$data))) + xlab("Data") + ylab(paste0("\u00b5","\u0067","\u002f","\u006d","\u00b3"))#works
+      p <- p + scale_x_continuous(labels=Date,breaks = seq(1, length(Date))) + xlab("Data") + ylab(paste0("\u00b5","\u0067","\u002f","\u006d","\u00b3"))#works
       ggplotly(p)
       
       
