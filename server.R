@@ -120,15 +120,21 @@ shinyServer(function(input, output, session) {
      output$dativari1 <- renderText({
        tabella <- mydata()
        y<- unique(tabella$idsensore) 
-       x <- Stazioni[Stazioni$idsensore== y,]$nomestazione
-       x
+       x <- Stazioni[Stazioni$idsensore== y,]
+       paste0(x$nomestazione,"\u0020","-","\u0020", x$nometiposensore)
      })
      
      output$dativari2 <- renderText({
        tabella <- mydata()
        y<- unique(tabella$idsensore) 
-       x <- Stazioni[Stazioni$idsensore== y,]$nometiposensore
-       x
+       x <- Stazioni[Stazioni$idsensore== y,]
+       paste0(x$nomestazione,"\u0020","-","\u0020", x$nometiposensore)
+     })
+     
+     output$method <-renderText({
+       fcast <- forecastdata()
+       x <-fcast$method
+       paste0("Modello di previsione utilizzato:","\u0020",x)
      })
     
      output$min <- renderText({
@@ -183,32 +189,32 @@ shinyServer(function(input, output, session) {
      
      output$upper1<- renderText({
        fcast <- forecastdata()
-       paste0("Max:", "\u0020", round(fcast$upper[1,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
+       paste0("Limite sup:", "\u0020", round(fcast$upper[1,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
      })
      
      output$upper2<- renderText({
        fcast <- forecastdata()
-       paste0("Max:","\u0020", round(fcast$upper[2,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
+       paste0("Limite sup:","\u0020", round(fcast$upper[2,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
      })
      
      output$upper3<- renderText({
        fcast <- forecastdata()
-       paste0("Max:", "\u0020", round(fcast$upper[3,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
+       paste0("Limite sup:", "\u0020", round(fcast$upper[3,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
      })
      
      output$lower1<- renderText({
        fcast <- forecastdata()
-       paste0("Min:","\u0020", round(fcast$lower[1,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
+       paste0("Limite inf:","\u0020", round(fcast$lower[1,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
      })
      
      output$lower2<- renderText({
        fcast <- forecastdata()
-       paste0("Min:","\u0020", round(fcast$lower[2,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
+       paste0("Limite inf:","\u0020", round(fcast$lower[2,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
      })
      
      output$lower3<- renderText({
        fcast <- forecastdata()
-       paste0("Min:", "\u0020", round(fcast$lower[3,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
+       paste0("Limite inf:", "\u0020", round(fcast$lower[3,2],1),"\u0020","\u00b5","\u0067","\u002f","\u006d","\u00b3")
      })
      
      output$rmse <- renderText({

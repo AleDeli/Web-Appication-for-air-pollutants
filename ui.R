@@ -20,47 +20,45 @@ options(spinner.color="#df691a", spinner.color.background="#ffffff", spinner.siz
 principal_ui<- sidebarLayout(
     #risultati previsione
     sidebarPanel( id = "card2",
+                  h2(uiOutput("dativari1")),
                   div(
                     div(
-                      h3(uiOutput("date1"), align = 'center'),
-                      br(),
+                      h4(uiOutput("date1"), align = 'center'),
                       div(
-                        h2(uiOutput("forecast1"), align = 'center'),
-                        h4(paste0("\u00b5","\u0067","\u002f","\u006d","\u00b3")),
+                        h3(uiOutput("forecast1"), align = 'center'),
+                        h5(paste0("\u00b5","\u0067","\u002f","\u006d","\u00b3")),
                         id ='card'),
                       br(),
-                      h4(uiOutput("upper1"), align = 'center'),
-                      h4(uiOutput("lower1"), align = 'center'),
+                      h5(uiOutput("upper1"), align = 'center'),
+                      h5(uiOutput("lower1"), align = 'center'),
                       br(),
                       id = "column"),
                     id = "row"),
                   
                   div(
                     div(
-                      h3(uiOutput("date2"), align = 'center'),
-                      br(),
+                      h4(uiOutput("date2"), align = 'center'),
                       div(
-                        h2(uiOutput("forecast2"), align = 'center'),
-                        h4(paste0("\u00b5","\u0067","\u002f","\u006d","\u00b3")),
+                        h3(uiOutput("forecast2"), align = 'center'),
+                        h5(paste0("\u00b5","\u0067","\u002f","\u006d","\u00b3")),
                         id ='card'),
                       br(),
-                      h4(uiOutput("upper2"), align = 'center'),
-                      h4(uiOutput("lower2"), align = 'center'),
+                      h5(uiOutput("upper2"), align = 'center'),
+                      h5(uiOutput("lower2"), align = 'center'),
                       br(),
                       id = "column"),
                     id = "row"),
                   
                   div(
                     div(
-                      h3(uiOutput("date3"), align = 'center'),
-                      br(),
+                      h4(uiOutput("date3"), align = 'center'),
                       div(
-                        h2(uiOutput("forecast3"), align = 'center'),
-                        h4(paste0("\u00b5","\u0067","\u002f","\u006d","\u00b3")),
+                        h3(uiOutput("forecast3"), align = 'center'),
+                        h5(paste0("\u00b5","\u0067","\u002f","\u006d","\u00b3")),
                         id ='card'),
                       br(),
-                      h4(uiOutput("upper3"), align = 'center'),
-                      h4(uiOutput("lower3"), align = 'center'),
+                      h5(uiOutput("upper3"), align = 'center'),
+                      h5(uiOutput("lower3"), align = 'center'),
                       br(),
                       id = "column"),
                     id = "row"),
@@ -68,14 +66,15 @@ principal_ui<- sidebarLayout(
                   div(
                     div(
                       div(
-                        h4(uiOutput("rmse"), align = 'center'),
+                        #h4(uiOutput("rmse"), align = 'center'),
+                        h4(uiOutput("method"), align = 'center'),
                       id = "card3"),
                     id ="column2"),
-                    div(
-                      div(
-                        h4(uiOutput("mae"), align = 'center'),
-                        id = "card3"),
-                      id ="column2"),
+                    #div(
+                      #div(
+                       # h4(uiOutput("mae"), align = 'center'),
+                      #  id = "card3"),
+                      #id ="column2"),
                   id = "row")
     ),
     
@@ -96,9 +95,8 @@ search_ui2 <-uiOutput("station")
 trend_plot_ui <-  sidebarLayout(
   
   sidebarPanel( id = "card2",
-    h2(uiOutput("dativari1")),
-    h4(uiOutput("dativari2")),
-    
+    h2(uiOutput("dativari2")),
+    br(),
     div(
       div(
         div(
@@ -106,6 +104,8 @@ trend_plot_ui <-  sidebarLayout(
           h1(uiOutput("max"), align = 'center'),
           h4(paste0("\u00b5","\u0067","\u002f","\u006d","\u00b3")),
           id ='card'),
+          br(),
+          br(),
         id = "column"),
       id = "row"),
     
@@ -116,6 +116,8 @@ trend_plot_ui <-  sidebarLayout(
           h1(uiOutput("min"), align = 'center'),
           h4(paste0("\u00b5","\u0067","\u002f","\u006d","\u00b3")),
           id ='card'),
+          br(),
+          br(),
         id = "column"),
       id = "row"),
     
@@ -126,11 +128,19 @@ trend_plot_ui <-  sidebarLayout(
           h1(uiOutput("mean"), align = 'center'),
           h4(paste0("\u00b5","\u0067","\u002f","\u006d","\u00b3")),
           id ='card'),
+          br(),
+          br(),
         id = "column"),
       id = "row"),
+  
+    div(
+      div(
+        div(
+          h4("Metodo utilizzato per la stima del trend: Loess", align = 'center'),
+          id = "card3"),
+        id ="column2"),
+      id= "row"),
     
-    br(),
-    br(),
   ),
   
   mainPanel(id = "card2",
@@ -218,7 +228,7 @@ shinyUI(fluidPage(
               
               #column2 {
                   float: left;
-                  width: 49%;
+                  width: 98%;
                   padding: 0 10px;
               }
               
@@ -243,18 +253,18 @@ shinyUI(fluidPage(
                         br(),
                         br(),
                         titlePanel(
-                          h1("Previsione", align = "center")
-                          ),
+                          h1("Andamento mensile", align = "center")
+                        ),
                         br(),
-                        principal_ui,
+                        trend_plot_ui,
                         br(),
                         br(),
                         br(),
                         titlePanel(
-                          h1("Andamento mensile", align = "center")
-                          ),
+                          h1("Previsione", align = "center")
+                        ),
                         br(),
-                        trend_plot_ui)
+                        principal_ui,)
     )
   
 ))
