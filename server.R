@@ -63,7 +63,7 @@ shinyServer(function(input, output, session) {
     valori<- unsensore[unsensore$valore != -9999,]$valore
     mean(valori)
     unsensore$valore[unsensore$valore<0] <- mean(valori)
-    ss <- subset(unsensore,  as.Date(data) > Sys.Date()-30)
+    ss <- subset(unsensore,  as.Date(data) > as.Date(input$to[2])-30 & as.Date(data)< as.Date(input$to[2]))
     ss
   })
   
